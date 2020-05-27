@@ -80,6 +80,12 @@ def tokenize_yaml(content: typing.Union[str, bytes]) -> Token:
         value = loader.construct_yaml_null(node)
         return ScalarToken(value, start, end - 1, content=str_content)
 
+    def construct_timestamp(loader: "yaml.Loader", node: "yaml.Node") -> ScalarToken:
+        start = node.start_mark.index
+        end = node.end_mark.index
+        value = loader.construct_yaml_timestamp(node)
+        return ScalarToken(value, start, end - 1, content=str_content)
+
     CustomSafeLoader.add_constructor(
         yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_mapping
     )
@@ -99,6 +105,8 @@ def tokenize_yaml(content: typing.Union[str, bytes]) -> Token:
     CustomSafeLoader.add_constructor("tag:yaml.org,2002:bool", construct_bool)
 
     CustomSafeLoader.add_constructor("tag:yaml.org,2002:null", construct_null)
+
+    CustomSafeLoader.add_constructor("tag:yaml.org,2002:timestamp", construct_timestamp)
 
     try:
         return yaml.load(str_content, CustomSafeLoader)
